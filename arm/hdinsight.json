@@ -1,0 +1,145 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "outputs": {
+        "cluster": {
+            "type": "object",
+            "value": "[reference(resourceId('Microsoft.HDInsight/clusters',parameters('clusterName')))]"
+        }
+    },
+    "parameters": {
+        "clusterLoginPassword": {
+            "metadata": {
+                "description": "The password for the cluster login."
+            },
+            "type": "securestring"
+        },
+        "clusterLoginUserName": {
+            "defaultValue": "admin",
+            "metadata": {
+                "description": "These credentials can be used to submit jobs to the cluster and to log into cluster dashboards."
+            },
+            "type": "string"
+        },
+        "clusterName": {
+            "metadata": {
+                "description": "The name of the HDInsight cluster to create."
+            },
+            "type": "string"
+        },
+        "clusterStorageAccountName": {
+            "metadata": {
+                "description": "The name of the storage account to be created and be used as the cluster's storage."
+            },
+            "type": "string"
+        },
+        "clusterStorageType": {
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_ZRS"
+            ],
+            "defaultValue": "Standard_LRS",
+            "type": "string"
+        },
+        "clusterWorkerNodeCount": {
+            "defaultValue": 4,
+            "metadata": {
+                "description": "The number of nodes in the HDInsight cluster."
+            },
+            "type": "int"
+        },
+        "location": {
+            "allowedValues": [
+                "Central US",
+                "North Europe",
+                "East US",
+                "East US 2",
+                "North Central US",
+                "South Central US",
+                "West US",
+                "North Europe",
+                "West Europe",
+                "East Asia",
+                "Southeast Asia",
+                "Japan East",
+                "Japan West",
+                "Brizil South",
+                "Australia East",
+                "Australia Southeast",
+                "Central India"
+            ],
+            "defaultValue": "East US 2",
+            "metadata": {
+                "description": "The location where all azure resources will be deployed."
+            },
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "dependsOn": [],
+            "location": "[parameters('location')]",
+            "name": "[parameters('clusterStorageAccountName')]",
+            "properties": {
+                "accountType": "[parameters('clusterStorageType')]"
+            },
+            "tags": {},
+            "type": "Microsoft.Storage/storageAccounts"
+        },
+        {
+            "apiVersion": "2015-03-01-preview",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/',parameters('clusterStorageAccountName'))]"
+            ],
+            "location": "[parameters('location')]",
+            "name": "[parameters('clusterName')]",
+            "properties": {
+                "clusterDefinition": {
+                    "configurations": {
+                        "gateway": {
+                            "restAuthCredential.isEnabled": true,
+                            "restAuthCredential.password": "[parameters('clusterLoginPassword')]",
+                            "restAuthCredential.username": "[parameters('clusterLoginUserName')]"
+                        }
+                    },
+                    "kind": "hadoop"
+                },
+                "clusterVersion": "3.2",
+                "computeProfile": {
+                    "roles": [
+                        {
+                            "hardwareProfile": {
+                                "vmSize": "Large"
+                            },
+                            "name": "headnode",
+                            "targetInstanceCount": "1"
+                        },
+                        {
+                            "hardwareProfile": {
+                                "vmSize": "Large"
+                            },
+                            "name": "workernode",
+                            "targetInstanceCount": "[parameters('clusterWorkerNodeCount')]"
+                        }
+                    ]
+                },
+                "osType": "Windows",
+                "storageProfile": {
+                    "storageaccounts": [
+                        {
+                            "container": "[parameters('clusterName')]",
+                            "isDefault": true,
+                            "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('clusterStorageAccountName')), '2015-05-01-preview').key1]",
+                            "name": "[concat(parameters('clusterStorageAccountName'),'.blob.core.windows.net')]"
+                        }
+                    ]
+                }
+            },
+            "tags": {},
+            "type": "Microsoft.HDInsight/clusters"
+        }
+    ],
+    "variables": {}
+}
