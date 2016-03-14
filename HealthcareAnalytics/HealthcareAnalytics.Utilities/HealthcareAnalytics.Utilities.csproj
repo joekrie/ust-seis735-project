@@ -57,8 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmsPatientDataUtilities.cs" />
-    <Compile Include="InpatientClaim.cs" />
-    <Compile Include="InpatientClaimMap.cs" />
+    <Compile Include="CsvMapperExtensions.cs" />
+    <Compile Include="Entities\InpatientClaim.cs" />
+    <Compile Include="Entities\InpatientClaimMap.cs" />
     <Compile Include="LocalDateTypeConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,9 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
-using CsvHelper;
 using CsvHelper.Configuration;
 
-namespace HealthcareAnalytics.Utilities
+namespace HealthcareAnalytics.Utilities.Entities
 {
     public sealed class InpatientClaimMap : CsvClassMap<InpatientClaim>
     {
@@ -44,16 +41,9 @@ namespace HealthcareAnalytics.Utilities
 
             Map(c => c.ClaimDiagnosisRelatedGroupCode).Name("CLM_DRG_CD");
             
-            Map(c => c.ClaimDiagnosisCodes).ConvertUsing(r => MapStringList(r, "ICD9_DGNS_CD_", 10));
-            Map(c => c.ClaimProcedureCodes).ConvertUsing(r => MapStringList(r, "ICD9_PRCDR_CD_", 6));
-            Map(c => c.RevenueCenterHcfaCpcsCodes).ConvertUsing(r => MapStringList(r, "HCPCS_CD_", 45));
-        }
-
-        private static IEnumerable<string> MapStringList(ICsvReaderRow csvRow, string prefix, int maxCount)
-        {
-            return Enumerable
-                .Range(1, maxCount)
-                .Select(n => csvRow.GetField<string>($"{prefix}{n}"));
+            Map(c => c.ClaimDiagnosisCodes).ConvertUsing(r => r.MapStringList("ICD9_DGNS_CD_", 10));
+            Map(c => c.ClaimProcedureCodes).ConvertUsing(r => r.MapStringList("ICD9_PRCDR_CD_", 6));
+            Map(c => c.RevenueCenterHcfaCpcsCodes).ConvertUsing(r => r.MapStringList("HCPCS_CD_", 45));
         }
     }
 }

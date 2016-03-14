@@ -1,5 +1,5 @@
-data/**
 HealthcareAnalytics/.vs/**
 HealthcareAnalytics/packages/**
 HealthcareAnalytics/HealthcareAnalytics.Utilities/obj/**
 HealthcareAnalytics/HealthcareAnalytics.Utilities/bin/**
+data/**
