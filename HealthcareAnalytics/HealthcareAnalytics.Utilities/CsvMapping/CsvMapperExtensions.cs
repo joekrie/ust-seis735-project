@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CsvHelper;
 
-namespace HealthcareAnalytics.Utilities
+namespace HealthcareAnalytics.Utilities.CsvMapping
 {
     public static class CsvMapperExtensions
     {

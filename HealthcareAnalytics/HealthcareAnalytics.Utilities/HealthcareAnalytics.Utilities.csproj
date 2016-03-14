@@ -57,10 +57,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmsPatientDataUtilities.cs" />
-    <Compile Include="CsvMapperExtensions.cs" />
-    <Compile Include="Entities\InpatientClaim.cs" />
-    <Compile Include="Entities\InpatientClaimMap.cs" />
-    <Compile Include="LocalDateTypeConverter.cs" />
+    <Compile Include="CsvMapping\CsvMapperExtensions.cs" />
+    <Compile Include="CsvMapping\BeneficiarySummary.cs" />
+    <Compile Include="CsvMapping\BeneficiarySummaryMap.cs" />
+    <Compile Include="CsvMapping\BooleanTypeConverter.cs" />
+    <Compile Include="CsvMapping\InpatientClaim.cs" />
+    <Compile Include="CsvMapping\InpatientClaimMap.cs" />
+    <Compile Include="CsvMapping\Race.cs" />
+    <Compile Include="CsvMapping\Sex.cs" />
+    <Compile Include="CsvMapping\State.cs" />
+    <Compile Include="CsvMapping\LocalDateTypeConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

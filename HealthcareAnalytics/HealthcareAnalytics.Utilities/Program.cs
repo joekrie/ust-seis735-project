@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using Fclp;
 
 namespace HealthcareAnalytics.Utilities
@@ -18,18 +20,15 @@ namespace HealthcareAnalytics.Utilities
         
         public static void Main(string[] args)
         {
-            var argParser = GetArgParser();
-        }
-
-        private static FluentCommandLineParser<Args> GetArgParser()
-        {
-            var argParser = new FluentCommandLineParser<Args>();
-            return argParser;
-        }
-
-        private class Args
-        {
-            
+            try
+            {
+                var inpatientClaims = CmsPatientDataUtilities.LoadInpatientData(DataPath);
+                //var beneficiarySummaries = CmsPatientDataUtilities.LoadBeneficiarySummaryData(DataPath).ToList();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Data["CsvHelper"]);
+            }
         }
     }
 }

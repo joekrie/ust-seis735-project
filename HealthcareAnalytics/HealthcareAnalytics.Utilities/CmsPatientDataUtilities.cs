@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using CsvHelper;
-using HealthcareAnalytics.Utilities.Entities;
+using HealthcareAnalytics.Utilities.CsvMapping;
 
 namespace HealthcareAnalytics.Utilities
 {
@@ -19,23 +20,32 @@ namespace HealthcareAnalytics.Utilities
             }
         }
 
-        public static void LoadInpatientData(string dataBasePath)
+        public static IEnumerable<InpatientClaim> LoadInpatientData(string dataBasePath)
         {
             const string fileNameTemplate = "DE1_0_2008_to_2010_Inpatient_Claims_Sample_{n}.csv";
             var dataPath = Path.Combine(dataBasePath, "cms/inpatient_claims");
             var filePaths = GetCsvFilePaths(dataPath, fileNameTemplate);
-
-
+            return LoadEntitiesFromCsvFiles<InpatientClaim>(filePaths);
         }
 
-        public static void LoadBeneficiarySummaryData(string dataBasePath)
+        public static IEnumerable<BeneficiarySummary> LoadBeneficiarySummaryData(string dataBasePath)
         {
             const string fileNameBaseTemplate = "DE1_0_{year}_Beneficiary_Summary_File_Sample_{n}.csv";
-            var years = new[] {2008, 2009, 2010};
-            var fileNameTemplates = years.Select(y => fileNameBaseTemplate.Replace("{year}", y.ToString()));
             var dataPath = Path.Combine(dataBasePath, "cms/beneficiary_summary");
-            var filePaths = fileNameTemplates.SelectMany(t => GetCsvFilePaths(dataPath, t));
-            
+
+            return new[] {2008, 2009, 2010}
+                .SelectMany(y =>
+                {
+                    var fileNameTemplate = fileNameBaseTemplate.Replace("{year}", y.ToString());
+                    var csvPaths = GetCsvFilePaths(dataPath, fileNameTemplate);
+
+                    return LoadEntitiesFromCsvFiles<BeneficiarySummary>(csvPaths)
+                        .Select(e =>
+                        {
+                            e.Year = y;
+                            return e;
+                        });
+                });
         }
 
         private static IEnumerable<string> GetCsvFilePaths(string dataPath, string fileNameTemplate)
@@ -55,13 +65,14 @@ namespace HealthcareAnalytics.Utilities
             {
                 var csv = new CsvReader(reader);
                 csv.ConfigureCsvReader();
-                return csv.GetRecords<TEntity>();
+                return csv.GetRecords<TEntity>().ToList();
             }
         }
 
         private static void ConfigureCsvReader(this ICsvReader csv)
         {
             csv.Configuration.RegisterClassMap<InpatientClaimMap>();
+            csv.Configuration.RegisterClassMap<BeneficiarySummaryMap>();
         }
     }
 }
