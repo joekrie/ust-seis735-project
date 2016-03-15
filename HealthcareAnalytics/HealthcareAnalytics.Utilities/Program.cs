@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Fclp;
 using Fclp.Internals.Extensions;
+using HealthcareAnalytics.Utilities.CsvMapping;
+using Humanizer;
 
 namespace HealthcareAnalytics.Utilities
 {
@@ -25,31 +29,30 @@ namespace HealthcareAnalytics.Utilities
             DoProblem1();
             //DoProblem2();
             //DoProblem3();
-            DoProblem4();
+            //DoProblem4();
 
             Console.WriteLine("Press an key to exit...");
             Console.ReadKey(true);
         }
 
         private static void PrintBenchmarkTime(TimeSpan elapsed)
-        {
-            var seconds = (int) elapsed.TotalSeconds;
-            Console.WriteLine($"Time to calculate: {seconds} seconds");
-        }
+         => Console.WriteLine($"Time to calculate: {elapsed.Humanize(2)}");
+
+        private static IEnumerable<BeneficiarySummary> GetBeneficiarySummaryData()
+            => CmsPatientDataUtilities.LoadBeneficiarySummaryData(DataPath);
+
+        private static IEnumerable<InpatientClaim> GetInpatientClaimData()
+            => CmsPatientDataUtilities.LoadInpatientData(DataPath);
 
         private static void DoProblem1()
         {
-            var sw = Stopwatch.StartNew();
-
-            var result = CmsPatientDataUtilities
-                .LoadBeneficiarySummaryData(DataPath)
-                .AsParallel()
-                .Count(bs => bs.Depression && bs.AlzheimerOrSenile);
-
-            sw.Stop();
-
             Console.WriteLine(
                 "1: From all the Beneficiary-Summary files, determine how many patients have both the following chronic conditions: depression and Alzheimer's.");
+
+            var sw = Stopwatch.StartNew();
+            var result = GetBeneficiarySummaryData().Count(bs => bs.Depression && bs.AlzheimerOrSenile);
+            sw.Stop();
+
             Console.WriteLine($"Result: {result}");
             PrintBenchmarkTime(sw.Elapsed);
             Console.WriteLine();
@@ -57,16 +60,13 @@ namespace HealthcareAnalytics.Utilities
 
         private static void DoProblem2()
         {
-            var sw = Stopwatch.StartNew();
-
-            var result = CmsPatientDataUtilities
-                .LoadBeneficiarySummaryData(DataPath)
-                .Count(bs => bs.Depression && bs.Diabetes);
-
-            sw.Stop();
-
             Console.WriteLine(
                 "2: From all the Beneficiary-Summary files, determine how many patients have both the following chronic conditions: depression and diabetes.");
+            
+            var sw = Stopwatch.StartNew();
+            var result = GetBeneficiarySummaryData().Count(bs => bs.Depression && bs.Diabetes);
+            sw.Stop();
+
             Console.WriteLine($"Result: {result}");
             PrintBenchmarkTime(sw.Elapsed);
             Console.WriteLine();
@@ -74,16 +74,13 @@ namespace HealthcareAnalytics.Utilities
 
         private static void DoProblem3()
         {
-            var sw = Stopwatch.StartNew();
-
-            var result = CmsPatientDataUtilities
-                .LoadBeneficiarySummaryData(DataPath)
-                .Count(bs => bs.Depression && bs.ChronicObstructivePulmonaryDisease);
-
-            sw.Stop();
-
             Console.WriteLine(
                 "3: From all the Beneficiary-Summary files, determine how many patients have both the following chronic conditions: depression and COPD.");
+
+            var sw = Stopwatch.StartNew();
+            var result = GetBeneficiarySummaryData().Count(bs => bs.Depression && bs.ChronicObstructivePulmonaryDisease);
+            sw.Stop();
+
             Console.WriteLine($"Result: {result}");
             PrintBenchmarkTime(sw.Elapsed);
             Console.WriteLine();
@@ -91,27 +88,46 @@ namespace HealthcareAnalytics.Utilities
 
         private static void DoProblem4()
         {
+            Console.WriteLine(
+                   "4: From all the Inpatient files, determine the top 10 ICD code that have the highest frequency. Please output each code with its frequency (i.e. occurrence) in the descending order.");
+
             var sw = Stopwatch.StartNew();
 
-            var result = CmsPatientDataUtilities
-                .LoadInpatientData(DataPath)
-                .AsParallel()
+            var result = GetInpatientClaimData()
                 .SelectMany(ip =>
                     ip.ClaimDiagnosisCodes
                         .Concat(ip.ClaimProcedureCodes)
                         .Concat(ip.RevenueCenterHcfaCpcsCodes))
-                .GroupBy(code => code)
-                .Select(grp => new {Icd9Code = grp.Key, Count = grp.Count()})
-                .OrderByDescending(grp => grp.Count)
+                .AsParallel()
+                .Aggregate(() => new ConcurrentDictionary<string, int>(),
+                    (codeCounts, nextCode) =>
+                    {
+                        codeCounts.AddOrUpdate(nextCode, _ => 1, (_, count) => count + 1);
+                        return codeCounts;
+                    },
+                    (accumCounts, nextCounts) =>
+                    {
+                        var allCodes = accumCounts.Keys
+                            .Concat(nextCounts.Keys);
+
+                        foreach (var code in allCodes)
+                        {
+                            var nextCount = nextCounts.GetOrAdd(code, 0);
+                            accumCounts.AddOrUpdate(code, _ => nextCount, (_, accumCount) => nextCount + accumCount);
+                        }
+
+                        return accumCounts;
+                    },
+                    codeCounts => codeCounts.AsParallel()
+                )
+                .OrderByDescending(codeCount => codeCount.Value)
                 .Take(10)
                 .ToList();
 
             sw.Stop();
 
-            Console.WriteLine(
-                "4: From all the Inpatient files, determine the top 10 ICD code that have the highest frequency. Please output each code with its frequency (i.e. occurrence) in the descending order.");
             Console.WriteLine("Result:");
-            result.ForEach(codeGrp => Console.WriteLine($"{codeGrp.Icd9Code}: {codeGrp.Count}"));
+            result.ForEach(codeCount => Console.WriteLine($"{codeCount.Key}: {codeCount.Value}"));
             PrintBenchmarkTime(sw.Elapsed);
             Console.WriteLine();
         }

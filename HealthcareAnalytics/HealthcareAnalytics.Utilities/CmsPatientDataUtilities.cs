@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -56,9 +57,10 @@ namespace HealthcareAnalytics.Utilities
 
         private static IEnumerable<TEntity> LoadEntitiesFromCsvFiles<TEntity>(IEnumerable<string> csvPaths)
         {
-            var lazyReaders = csvPaths.ToDictionary(
-                path => path,
-                path => new Lazy<TextReader>(() => File.OpenText(path))
+            var lazyReaders = csvPaths
+                .ToDictionary(
+                    path => path,
+                    path => new Lazy<TextReader>(() => File.OpenText(path))
                 );
 
             return csvPaths.SelectMany(path => LoadEntitiesFromCsvFile<TEntity>(path, lazyReaders[path].Value));
