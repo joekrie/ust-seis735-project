@@ -27,9 +27,9 @@ namespace HealthcareAnalytics.Utilities
         public static void Main(string[] args)
         {
             DoProblem1();
-            //DoProblem2();
-            //DoProblem3();
-            //DoProblem4();
+            DoProblem2();
+            DoProblem3();
+            DoProblem4();
 
             Console.WriteLine("Press an key to exit...");
             Console.ReadKey(true);
@@ -94,19 +94,20 @@ namespace HealthcareAnalytics.Utilities
             var sw = Stopwatch.StartNew();
 
             var result = GetInpatientClaimData()
-                .SelectMany(ip =>
+                .SelectMany(ip =>       // SelectMany is a flattening function
                     ip.ClaimDiagnosisCodes
                         .Concat(ip.ClaimProcedureCodes)
                         .Concat(ip.RevenueCenterHcfaCpcsCodes))
-                .AsParallel()
-                .Aggregate(() => new ConcurrentDictionary<string, int>(),
-                    (codeCounts, nextCode) =>
+                .AsParallel()       // run in parallel (multi-core)
+                .Aggregate(         // Aggregate defines custom aggregation function that can run in parallel
+                    () => new ConcurrentDictionary<string, int>(),  // seed factory (gets called once per core used to run)
+                    (codeCounts, nextCode) =>   // updateAccumulatorFunc: this function is run in parallel
                     {
                         codeCounts.AddOrUpdate(nextCode, _ => 1, (_, count) => count + 1);
                         return codeCounts;
                     },
-                    (accumCounts, nextCounts) =>
-                    {
+                    (accumCounts, nextCounts) =>    // combineAccumulatorsFunc: this function combines the results of the 
+                    {                               // parallel function above
                         var allCodes = accumCounts.Keys
                             .Concat(nextCounts.Keys);
 
@@ -118,11 +119,11 @@ namespace HealthcareAnalytics.Utilities
 
                         return accumCounts;
                     },
-                    codeCounts => codeCounts.AsParallel()
+                    codeCounts => codeCounts.AsParallel()   // allow further processing to run in parallel
                 )
                 .OrderByDescending(codeCount => codeCount.Value)
-                .Take(10)
-                .ToList();
+                .Take(10)   // only keep first 10
+                .ToList();  
 
             sw.Stop();
 

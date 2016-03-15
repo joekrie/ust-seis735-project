@@ -14,5 +14,10 @@ namespace HealthcareAnalytics.Utilities.CsvMapping
         {
             return _pattern.Parse(text);
         }
+
+        public override bool CanConvertFrom(Type type)
+        {
+            return type == typeof(string);
+        }
     }
 }
