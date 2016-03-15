@@ -10,7 +10,9 @@ namespace HealthcareAnalytics.Utilities.CsvMapping
         {
             return Enumerable
                 .Range(1, maxCount)
-                .Select(n => csvRow.GetField<string>($"{prefix}{n}"));
+                .Select(n => csvRow.GetField<string>($"{prefix}{n}"))
+                .Where(code => !string.IsNullOrWhiteSpace(code))
+                .ToList();
         }
     }
 }

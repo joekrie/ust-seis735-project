@@ -47,7 +47,7 @@ namespace HealthcareAnalytics.Utilities
                         });
                 });
         }
-
+        
         private static IEnumerable<string> GetCsvFilePaths(string dataPath, string fileNameTemplate)
         {
             var filePathTemplate = Path.Combine(dataPath, fileNameTemplate);
@@ -56,17 +56,26 @@ namespace HealthcareAnalytics.Utilities
 
         private static IEnumerable<TEntity> LoadEntitiesFromCsvFiles<TEntity>(IEnumerable<string> csvPaths)
         {
-            return csvPaths.SelectMany(LoadEntitiesFromCsvFile<TEntity>);
+            var lazyReaders = csvPaths.ToDictionary(
+                path => path,
+                path => new Lazy<TextReader>(() => File.OpenText(path))
+                );
+
+            return csvPaths.SelectMany(path => LoadEntitiesFromCsvFile<TEntity>(path, lazyReaders[path].Value));
         }
 
-        private static IEnumerable<TEntity> LoadEntitiesFromCsvFile<TEntity>(string csvPath)
+        private static IEnumerable<TEntity> LoadEntitiesFromCsvFile<TEntity>(string csvPath, TextReader streamReader)
         {
-            using (var reader = File.OpenText(csvPath))
+            var csv = new CsvReader(streamReader);
+            csv.ConfigureCsvReader();
+            var enumerator = csv.GetRecords<TEntity>().GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                var csv = new CsvReader(reader);
-                csv.ConfigureCsvReader();
-                return csv.GetRecords<TEntity>().ToList();
+                yield return enumerator.Current;
             }
+
+            streamReader.Dispose();
         }
 
         private static void ConfigureCsvReader(this ICsvReader csv)

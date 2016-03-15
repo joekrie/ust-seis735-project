@@ -28,14 +28,14 @@ namespace HealthcareAnalytics.Utilities.CsvMapping
         public bool Osteoporosis { get; set; }
         public bool RheumatoidArthritisOrOsteoarthritus { get; set; }
         public bool StrokeTransientIschemicAttack { get; set; }
-        public int InpatientAnnualMedicareReimbursementAmount { get; set; }
-        public int InpatientAnnualBeneficiaryResponsibilityAmount { get; set; }
-        public int InpatientAnnualPrimaryPayerReimbursementAmount { get; set; }
-        public int OutpatientAnnualMedicareReimbursementAmount { get; set; }
-        public int OutpatientAnnualBeneficiaryResponsibilityAmount { get; set; }
-        public int OutpatientAnnualPrimaryPayerReimbursementAmount { get; set; }
-        public int CarrierAnnualMedicareReimbursementAmount { get; set; }
-        public int CarrierAnnualBeneficiaryResponsibilityAmount { get; set; }
-        public int CarrierAnnualPrimaryPayerReimbursementAmount { get; set; }
+        public decimal? InpatientAnnualMedicareReimbursementAmount { get; set; }
+        public decimal? InpatientAnnualBeneficiaryResponsibilityAmount { get; set; }
+        public decimal? InpatientAnnualPrimaryPayerReimbursementAmount { get; set; }
+        public decimal? OutpatientAnnualMedicareReimbursementAmount { get; set; }
+        public decimal? OutpatientAnnualBeneficiaryResponsibilityAmount { get; set; }
+        public decimal? OutpatientAnnualPrimaryPayerReimbursementAmount { get; set; }
+        public decimal? CarrierAnnualMedicareReimbursementAmount { get; set; }
+        public decimal? CarrierAnnualBeneficiaryResponsibilityAmount { get; set; }
+        public decimal? CarrierAnnualPrimaryPayerReimbursementAmount { get; set; }
     }
 }
