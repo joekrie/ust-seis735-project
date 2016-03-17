@@ -80,6 +80,7 @@
     <Compile Include="CsvMapping\State.cs" />
     <Compile Include="CsvMapping\LocalDateTypeConverter.cs" />
     <Compile Include="ExtractTransformLoadUtilities.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -35,11 +35,34 @@ namespace HealthcareAnalytics.Utilities
 
         public static void LoadInpatientClaimsIntoDb(IEnumerable<InpatientClaim> inpatientClaims)
         {
-            var insert = GenerateInsertSqlScript<InpatientClaim>();
+            const string sproc = @"
+	            @BeneficiaryCode NVARCHAR(100),
+	            @ClaimId NVARCHAR(100),
+	            @ClaimsStartDate DATE,
+	            @ClaimsEndDate DATE,
+	            @ProviderNumber NVARCHAR(100),
+	            @ClaimPaymentAmount DECIMAL(18,0),
+	            @NchPrimaryPayerClaimPaidAmount DECIMAL(18,0),
+	            @AttendingPhysicianNpi NVARCHAR(100),
+	            @OperatingPhysicianNpi NVARCHAR(100),
+	            @OtherPhysicianNpi NVARCHAR(100),
+	            @InpatientAdmissionDate DATE,
+	            @ClaimAdmittingDiagnosisCode NVARCHAR(100),
+	            @ClaimPassThruPerDiemAmount DECIMAL(18,0),
+	            @NchBeneficiaryInpatientDeductibleAmount DECIMAL(18,0),
+	            @NchBeneficiaryPartACoinsuranceLiabilityAmount DECIMAL(18,0),
+	            @NchBeneficiaryBloodDeductibleLiabilityAmount DECIMAL(18,0),
+	            @ClaimUtilizationDayCount DECIMAL(18,0),
+	            @InpatientDischargedDate DATE,
+	            @ClaimDiagnosisRelatedGroupCode NVARCHAR(100),
+	            @ClaimDiagnosisCodes Icd9Codes READONLY,
+	            @ClaimProcedureCodes Icd9Codes READONLY,
+	            @RevenueCenterHcfaCpcsCodes Icd9Codes READONLY
+            ";
 
             using (var conn = new SqlConnection(ConnectionString))
             {
-                conn.Execute(insert, inpatientClaims);
+                conn.Execute(sproc, inpatientClaims);
             }
         }
 

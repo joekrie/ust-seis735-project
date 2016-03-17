@@ -34,18 +34,15 @@ namespace HealthcareAnalytics.Utilities
             //DoProblem4();
             //DoProblem5();
 
-            
-            Console.WriteLine("Loading beneficiary summary data...");
-            var sw = Stopwatch.StartNew();
-            ExtractTransformLoadUtilities.LoadBeneficiarySummariesIntoDb(GetBeneficiarySummaryData());
-            sw.Stop();
-            PrintBenchmarkTime(sw.Elapsed);
+            NativeMethods.PreventSleep();
 
             Console.WriteLine("Loading inpatient claim data...");
-            sw.Restart();
+            var sw = Stopwatch.StartNew();
             ExtractTransformLoadUtilities.LoadInpatientClaimsIntoDb(GetInpatientClaimData());
             sw.Stop();
             PrintBenchmarkTime(sw.Elapsed);
+
+            NativeMethods.AllowSleep();
             
             Console.WriteLine("Press X to exit...");
 
