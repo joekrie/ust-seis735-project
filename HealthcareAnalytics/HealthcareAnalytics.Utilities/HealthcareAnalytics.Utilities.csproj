@@ -37,6 +37,14 @@
       <HintPath>..\packages\CsvHelper.2.13.5.0\lib\net40-client\CsvHelper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.0-beta8\lib\net451\Dapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapper.NodaTime, Version=0.0.1.40382, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper-NodaTime.0.0.1\lib\net40\Dapper.NodaTime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FluentCommandLineParser, Version=1.4.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentCommandLineParser.1.4.3\lib\net35\FluentCommandLineParser.dll</HintPath>
       <Private>True</Private>
@@ -62,15 +70,16 @@
   <ItemGroup>
     <Compile Include="CmsPatientDataUtilities.cs" />
     <Compile Include="CsvMapping\CsvMapperExtensions.cs" />
-    <Compile Include="CsvMapping\BeneficiarySummary.cs" />
+    <Compile Include="Entities\BeneficiarySummary.cs" />
     <Compile Include="CsvMapping\BeneficiarySummaryMap.cs" />
     <Compile Include="CsvMapping\BooleanTypeConverter.cs" />
-    <Compile Include="CsvMapping\InpatientClaim.cs" />
+    <Compile Include="Entities\InpatientClaim.cs" />
     <Compile Include="CsvMapping\InpatientClaimMap.cs" />
     <Compile Include="CsvMapping\Race.cs" />
     <Compile Include="CsvMapping\Sex.cs" />
     <Compile Include="CsvMapping\State.cs" />
     <Compile Include="CsvMapping\LocalDateTypeConverter.cs" />
+    <Compile Include="ExtractTransformLoadUtilities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

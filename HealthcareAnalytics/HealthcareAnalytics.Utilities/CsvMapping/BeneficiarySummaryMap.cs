@@ -1,4 +1,5 @@
 using CsvHelper.Configuration;
+using HealthcareAnalytics.Utilities.Entities;
 
 namespace HealthcareAnalytics.Utilities.CsvMapping
 {

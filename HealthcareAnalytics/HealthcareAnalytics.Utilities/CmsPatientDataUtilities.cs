@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using CsvHelper;
 using HealthcareAnalytics.Utilities.CsvMapping;
+using HealthcareAnalytics.Utilities.Entities;
 
 namespace HealthcareAnalytics.Utilities
 {

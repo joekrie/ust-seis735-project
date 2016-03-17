@@ -12,7 +12,9 @@ namespace HealthcareAnalytics.Utilities.CsvMapping
 
         public override object ConvertFromString(TypeConverterOptions options, string text)
         {
-            return _pattern.Parse(text);
+            return string.IsNullOrWhiteSpace(text) 
+                ? new LocalDate?() 
+                : _pattern.Parse(text).Value;
         }
 
         public override bool CanConvertFrom(Type type)
